@@ -52,3 +52,8 @@ if first_name.istitle() and first_name.isalpha() and " " not in first_name:
 else:
     print("Insert correct first name.")
 
+
+# syed ali azhar
+
+
+
