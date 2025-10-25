@@ -1,0 +1,82 @@
+name: Python tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies (if any)
+        run: |
+          pip install -r requirements.txt || true
+
+      - name: Install coverage
+        run: python -m pip install coverage
+
+      - name: Run tests with coverage (discover)
+        run: |
+          coverage run -m unittest discover -v
+          coverage xml -i
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false
+
+  script-check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PowerShell (if needed)
+        uses: actions/setup-powershell@v2
+
+      - name: PowerShell syntax check
+        shell: pwsh
+        run: |
+          Write-Host "Running PowerShell syntax check for scripts/poll-workflow.ps1"
+          pwsh -NoProfile -Command { [System.Management.Automation.Language.Parser]::ParseFile('scripts/poll-workflow.ps1', [ref]$null, [ref]$null) }
+
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Write-Host "Installing PSScriptAnalyzer..."
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser -SkipPublisherCheck
+
+      - name: Run PSScriptAnalyzer (fail on warnings)
+        shell: pwsh
+        run: |
+          Write-Host "Running PSScriptAnalyzer on scripts/poll-workflow.ps1 (failing on Warnings+Errors)"
+          $issues = Invoke-ScriptAnalyzer -Path scripts/poll-workflow.ps1 -Severity Warning,Error
+          if ($issues) {
+            Write-Host "Found PSScriptAnalyzer findings:" -ForegroundColor Red
+            $issues | ForEach-Object { Write-Host "$($_.Severity): $($_.RuleName) - $($_.Message)" }
+            Write-Host "Failing job because PSScriptAnalyzer found Warning-or-Error level issues." -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host "No PSScriptAnalyzer issues found."
+          }
