@@ -1,3 +1,6 @@
+# [![Python tests](https://github.com/tarique07iqbal/python-start/actions/workflows/python-tests.yml/badge.svg)](https://github.com/tarique07iqbal/python-start/actions/workflows/python-tests.yml)
+# [![Codecov coverage](https://codecov.io/gh/tarique07iqbal/python-start/branch/main/graph/badge.svg?token=)](https://codecov.io/gh/tarique07iqbal/python-start)
+
 # Sign-up process
 
 # 1. First Name
@@ -77,3 +80,15 @@ Enter your password: Abc12345
 password at least one special character
 Confirm Password: Abc123@
 Your password is mismatch
+
+## Monitor CI workflow (optional)
+
+If you want to monitor the GitHub Actions workflow from your machine, a helper script is available at `scripts/poll-workflow.ps1`.
+
+Short example (PowerShell):
+
+```powershell
+# prompt for PAT in session and poll the 'python-tests' workflow
+$env:GITHUB_PAT = Read-Host -AsSecureString "Enter GitHub PAT" | ConvertFrom-SecureString
+powershell -ExecutionPolicy Bypass -File .\scripts\poll-workflow.ps1 -RepoOwner tarique07iqbal -RepoName python-start
+```
