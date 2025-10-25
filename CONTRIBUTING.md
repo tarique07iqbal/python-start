@@ -32,3 +32,22 @@ $env:GITHUB_PAT = Read-Host -AsSecureString "Enter GitHub PAT" | ConvertFrom-Sec
 Add the PAT as a repository secret (name: `CODECOV_TOKEN`) if you need to upload coverage for private repos.
 
 Thanks for contributing — small, focused PRs are easiest to review.
+
+## Enable local git hooks (optional)
+
+This repo includes a sample pre-commit hook that runs `scripts/lint.ps1`.
+To enable it locally, run:
+
+```powershell
+git config core.hooksPath .githooks
+```
+
+To disable and revert to the default hooks directory:
+
+```powershell
+git config --unset core.hooksPath
+```
+
+If you enable hooks, the pre-commit hook will attempt to run PowerShell (pwsh or powershell).
+If PowerShell isn't available, the hook prints a message and allows the commit.
+

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Pre-commit hook that runs the PowerShell lint script if PowerShell is available.
+echo "Running pre-commit lint hook (scripts/lint.ps1)"
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/lint.ps1 || exit 1
+elif command -v powershell >/dev/null 2>&1; then
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/lint.ps1 || exit 1
+else
+  echo "PowerShell not found in PATH; skipping PowerShell lint." >&2
+fi
+exit 0
